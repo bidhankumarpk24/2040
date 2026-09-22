@@ -45,4 +45,4 @@ Open `index.html` directly in a modern browser. No installation or build process
 Designed & Developed by **Bidhan Kumar PK**.
 
 - Email: [bidhanpk17@gmail.com](mailto:bidhanpk17@gmail.com)
-- Website: [bidhan.site](https://www.bidhan.site)
+- Website: [BiDHAN.SiTE](https://www.bidhan.site)
