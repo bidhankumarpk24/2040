@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101522">
+  <meta name="description" content="Play 2048 Master, a fast, responsive and free online 2048 puzzle game. Merge tiles, build your score and reach 2048.">
+  <meta property="og:title" content="2048 Master - Free Online 2048 Puzzle Game">
+  <meta property="og:description" content="Merge. Think. Master the Board.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2048 Master">
+  <meta name="twitter:description" content="A polished, free online 2048 puzzle game.">
+  <title>2048 Master - Free Online 2048 Puzzle Game</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%237c5cff'/%3E%3Ctext x='50' y='67' text-anchor='middle' font-size='42' font-family='Arial' font-weight='bold' fill='white'%3E2K%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand"><span class="brand-mark">2K</span><div><h1>2048 Master</h1><p>Merge. Think. Master the Board.</p></div></div>
+      <div class="header-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="Switch to light mode" title="Toggle theme">☼</button><button class="icon-button" id="sound-toggle" type="button" aria-label="Turn sound off" title="Toggle sound">🔊</button></div>
+    </div>
+  </header>
+  <main class="container">
+    <section class="game-intro" aria-labelledby="game-title"><div><p class="eyebrow">THE CLASSIC, REIMAGINED</p><h2 id="game-title">Build your best board.</h2><p class="intro-copy">Slide, merge, and outthink the grid. Every move matters.</p></div><div class="scores" aria-label="Game scores"><div class="score-card"><span>SCORE</span><strong id="score">0</strong></div><div class="score-card"><span>BEST</span><strong id="best">0</strong></div></div></section>
+    <section class="game-card" aria-label="2048 game">
+      <div class="game-toolbar"><button class="primary-button" id="new-game" type="button">New Game</button><button class="secondary-button" id="undo" type="button" disabled>↶ <span>Undo</span></button><button class="secondary-button share-button" id="share" type="button">↗ <span>Share Score</span></button></div>
+      <p class="instructions">Use your arrow keys or swipe to move the tiles.</p>
+      <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="2048 game board"></div></div>
+      <div class="status-line" id="status-line" aria-live="polite">Keep going — your next great move is waiting.</div>
+    </section>
+    <section class="info-grid"><article class="info-card"><span class="info-icon">✦</span><h2>About 2048 Master</h2><p>2048 Master is a modern browser-based puzzle game inspired by the classic 2048 gameplay. Merge matching tiles, plan your moves and try to reach the 2048 tile.</p></article><article class="info-card"><span class="info-icon">⌘</span><h2>How to Play</h2><ol><li>Use arrow keys, WASD, or swipe to move the tiles.</li><li>Matching tiles merge when they collide.</li><li>Every valid move creates a new tile.</li><li>Keep merging tiles to reach 2048.</li><li>Plan ahead and avoid filling the board.</li></ol></article></section>
+  </main>
+  <footer class="site-footer"><div><strong>2048 Master</strong><p>© 2026 2048 Master. All rights reserved.</p><p>Designed &amp; Developed by Bidhan Kumar PK</p></div><div class="footer-links"><a href="mailto:bidhanpk17@gmail.com">Email</a><a href="https://www.bidhan.site" target="_blank" rel="noopener noreferrer">Website</a><a href="https://www.facebook.com/truly.BiDHAN" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.instagram.com/truly_bidhan" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.linkedin.com/in/bidhanpk" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></footer>
+  <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-icon" id="modal-icon">✦</div><h2 id="modal-title"></h2><p id="modal-message"></p><p class="modal-score">Final score: <strong id="modal-score">0</strong></p><div class="modal-actions"><button class="primary-button" id="modal-primary" type="button"></button><button class="secondary-button" id="modal-secondary" type="button"></button></div></div></div>
+</body>
+</html>
