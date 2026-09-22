@@ -1,28 +1,29 @@
-/* Responsive footer: split layout on desktop, centered layout on mobile. */
+/* Center the footer in a vertical column on every screen size. */
 .site-footer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  text-align: left;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  text-align: center;
 }
 
 .footer-meta {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  text-align: left;
+  text-align: center;
 }
 
 .footer-links {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 10px;
-  width: auto;
+  width: 100%;
 }
 
 .footer-icon {
@@ -69,22 +70,11 @@
 
 @media (max-width: 650px) {
   .site-footer {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    text-align: center;
-  }
-
-  .footer-meta {
-    align-items: center;
-    text-align: center;
+    gap: 16px;
   }
 
   .footer-links {
-    justify-content: center;
     gap: 10px;
-    width: 100%;
   }
 
   .footer-icon {
