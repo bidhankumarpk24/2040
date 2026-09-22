@@ -1,0 +1,89 @@
+/* Center the complete footer both vertically and horizontally. */
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  width: 100%;
+}
+
+.footer-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--surface-2), var(--surface));
+  color: var(--muted);
+  text-decoration: none;
+  transition: transform .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.footer-icon svg {
+  width: 27px;
+  height: 27px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.footer-icon .icon-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.footer-icon:hover {
+  color: var(--text);
+  border-color: var(--accent-2);
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 24px rgba(128, 103, 255, .22);
+}
+
+.footer-icon:focus-visible {
+  color: var(--text);
+}
+
+@media (max-width: 650px) {
+  .site-footer {
+    gap: 18px;
+  }
+
+  .footer-links {
+    gap: 11px;
+  }
+
+  .footer-icon {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+  }
+
+  .footer-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+}
