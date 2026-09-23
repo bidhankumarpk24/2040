@@ -1,12 +1,15 @@
-/* Desktop: copyright/developer text on the left and social icons on the right. */
+/* Keep the footer aligned with the About and How to Play cards instead of spanning the viewport. */
 .site-footer {
+  width: min(1080px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 28px 0 44px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  width: 100%;
   text-align: left;
+  border-top: 1px solid var(--line);
 }
 
 .footer-meta {
@@ -77,6 +80,7 @@
 
 @media (max-width: 650px) {
   .site-footer {
+    width: min(100% - 24px, 540px);
     flex-direction: column;
     align-items: center;
     justify-content: center;
