@@ -27,6 +27,21 @@
   line-height: 1.6;
 }
 
+.footer-meta strong,
+.developer-link {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.developer-link {
+  text-decoration: none;
+}
+
+.developer-link:hover,
+.developer-link:focus-visible {
+  text-decoration: none;
+}
+
 .footer-links {
   display: flex;
   align-items: center;
