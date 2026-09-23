@@ -1,29 +1,36 @@
-/* Center the footer in a vertical column on every screen size. */
+/* Desktop: copyright/developer text on the left and social icons on the right. */
 .site-footer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 20px;
   width: 100%;
-  text-align: center;
+  text-align: left;
 }
 
 .footer-meta {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  text-align: center;
+  text-align: left;
+}
+
+.footer-meta p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 .footer-links {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 10px;
-  width: 100%;
+  width: auto;
 }
 
 .footer-icon {
@@ -70,10 +77,21 @@
 
 @media (max-width: 650px) {
   .site-footer {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 16px;
+    text-align: center;
+  }
+
+  .footer-meta {
+    align-items: center;
+    text-align: center;
   }
 
   .footer-links {
+    justify-content: center;
+    width: 100%;
     gap: 10px;
   }
 
