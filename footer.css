@@ -1,4 +1,4 @@
-/* Keep the footer aligned with the About and How to Play cards instead of spanning the viewport. */
+/* Keep the footer text in one consistent muted color while preserving the layout. */
 .site-footer {
   width: min(1080px, calc(100% - 40px));
   margin: 0 auto;
@@ -27,21 +27,18 @@
   line-height: 1.6;
 }
 
-.footer-meta b,
 .footer-meta strong,
+.footer-meta b,
 .footer-meta .developer-link {
-  color: #ffffff;
+  color: var(--muted);
   font-weight: 700;
 }
 
-.footer-meta .developer-link {
-  text-decoration: none;
-}
-
+.footer-meta .developer-link,
 .footer-meta .developer-link:hover,
 .footer-meta .developer-link:focus,
 .footer-meta .developer-link:focus-visible {
-  color: #ffffff;
+  color: var(--muted);
   text-decoration: none;
 }
 
