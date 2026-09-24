@@ -12,109 +12,53 @@
   <meta name="twitter:title" content="2048 Master">
   <meta name="twitter:description" content="A polished, free online 2048 puzzle game.">
   <title>2048 Master - Free Online 2048 Puzzle Game</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%237c5cff'/%3E%3Ctext x='50' y='67' text-anchor='middle' font-size='58' fill='white' font-family='Arial'%3E2K%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="footer.css">
-  <script defer src="script.js"></script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%237c5cff'/%3E%3Ctext x='50' y='67' text-anchor='middle' font-size='58' font-weight='800' fill='white' font-family='Arial'%3E2K%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css?v=20260924-11">
+  <link rel="stylesheet" href="footer.css?v=20260924-11">
+  <script defer src="script.js?v=20260924-11"></script>
+  <style>
+    .brand h1{font-family:Georgia,'Times New Roman',serif;font-weight:800;letter-spacing:-.04em}
+    .brand p{font-size:.82rem}
+    .toggle{font-size:0;position:relative}
+    .toggle::before{font-size:1.15rem;line-height:1}
+    #theme-toggle[aria-label="Switch to dark theme"]::before{content:'☀';color:#f6c85f}
+    #theme-toggle[aria-label="Switch to light theme"]::before{content:'☾';color:#cfc7ff}
+    #sound-toggle[aria-label="Mute sound"]::before{content:'🔊';font-size:1.05rem}
+    #sound-toggle[aria-label="Enable sound"]::before{content:'🔇';font-size:1.05rem}
+    [data-theme="light"]{--bg:#eef2ff;--surface:#fff;--surface-2:#e3e9f8;--text:#1b2340;--muted:#53617d;--line:rgba(27,35,64,.16);--board:#d8e0f0;--empty:rgba(27,35,64,.08);--shadow:0 20px 45px rgba(56,72,115,.16)}
+    [data-theme="light"] body{background:linear-gradient(135deg,#f8faff,#e9edff)}
+    [data-theme="light"] .site-header,[data-theme="light"] .game-card,[data-theme="light"] .info-card{background:rgba(255,255,255,.82)}
+    [data-theme="light"] .game-card{box-shadow:0 18px 40px rgba(67,82,125,.14)}
+    [data-theme="light"] .board-wrap{background:#d8e0f0}
+    [data-theme="light"] .cell:not([class*="tile-"]){background:rgba(27,35,64,.08);border-color:rgba(27,35,64,.12)}
+    [data-theme="light"] .secondary-button{background:#fff;color:var(--text)}
+    .score-panel{display:grid!important}
+    .footer-icon{font-size:0}
+    .footer-icon svg{width:21px;height:21px;display:block}
+    .footer-icon.linkedin-mark::before{content:'in';font:700 13px/1 Arial,sans-serif;letter-spacing:-.08em}
+    @media(max-width:760px){.brand h1{font-size:1.35rem}.brand p{font-size:.72rem}.brand-mark{width:40px;height:40px;font-size:1.1rem}.game-intro{grid-template-columns:1fr}.score-panel{max-width:340px;margin:0 auto}}
+  </style>
 </head>
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <div class="brand">
-        <span class="brand-mark">2K</span>
-        <div>
-          <h1>2048 Master</h1>
-          <p>Merge. Think. Master the Board.</p>
-        </div>
-      </div>
-      <div class="topbar-controls">
-        <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme">☼</button>
-        <button class="toggle" id="sound-toggle" type="button" aria-label="Toggle sound">🔊</button>
-      </div>
+      <div class="brand"><span class="brand-mark">2K</span><div><h1>2048 Master</h1><p>Merge. Think. Master the Board.</p></div></div>
+      <div class="topbar-controls"><button class="toggle" id="theme-toggle" type="button" aria-label="Switch to light theme"></button><button class="toggle" id="sound-toggle" type="button" aria-label="Mute sound"></button></div>
     </div>
   </header>
-
   <main class="container">
     <section class="game-intro" aria-labelledby="game-title">
-      <div class="intro-copy-wrap">
-        <p class="eyebrow">THE CLASSIC, REIMAGINED</p>
-        <h2 id="game-title">Build your best board.</h2>
-        <p class="intro-copy">Slide, merge, and outthink the grid. Every move matters.</p>
-      </div>
-
-      <div class="score-panel" aria-label="Score panel">
-        <div class="score-box">
-          <span class="label">Score</span>
-          <span class="value" id="score">0</span>
-        </div>
-        <div class="score-box">
-          <span class="label">Best</span>
-          <span class="value" id="best">0</span>
-        </div>
-      </div>
+      <div class="intro-copy-wrap"><p class="eyebrow">THE CLASSIC, REIMAGINED</p><h2 id="game-title">Build your best board.</h2><p class="intro-copy">Slide, merge, and outthink the grid. Every move matters.</p></div>
+      <div class="score-panel" aria-label="Score panel"><div class="score-box"><span class="label">Score</span><span class="value" id="score">0</span></div><div class="score-box"><span class="label">Best</span><span class="value" id="best">0</span></div></div>
     </section>
-
     <section class="game-card" aria-label="2048 game">
-      <div class="game-toolbar">
-        <button class="primary-button" id="new-game" type="button">New Game</button>
-        <button class="secondary-button" id="undo" type="button">↶ Undo</button>
-        <button class="secondary-button" id="share" type="button">↗ Share Score</button>
-      </div>
-
+      <div class="game-toolbar"><button class="primary-button" id="new-game" type="button">New Game</button><button class="secondary-button" id="undo" type="button">↶ Undo</button><button class="secondary-button" id="share" type="button">↗ Share Score</button></div>
       <div class="status" id="status-line">Use your arrow keys or swipe to move the tiles.</div>
-
-      <div class="board-wrap">
-        <div class="board" id="board" role="grid" aria-label="2048 board"></div>
-      </div>
+      <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="2048 board"></div></div>
     </section>
-
-    <section class="info-grid">
-      <article class="info-card">
-        <span class="info-icon">✦</span>
-        <h2>About 2048 Master</h2>
-        <p>2048 Master is a modern browser-based puzzle game inspired by the classic 2048 tile-merging challenge. Slide, merge, and build your board to chase a new high score.</p>
-      </article>
-
-      <article class="info-card">
-        <span class="info-icon">✧</span>
-        <h2>How to Play</h2>
-        <ol>
-          <li>Use arrow keys or swipe to move the tiles.</li>
-          <li>Matching tiles merge when they collide.</li>
-          <li>Every valid move creates a new tile.</li>
-          <li>Keep merging tiles to reach 2048.</li>
-          <li>Plan ahead and avoid filling the board.</li>
-        </ol>
-      </article>
-    </section>
+    <section class="info-grid"><article class="info-card"><span class="info-icon">✦</span><h2>About 2048 Master</h2><p>2048 Master is a modern browser-based puzzle game inspired by the classic 2048 tile-merging challenge. Slide, merge, and build your board to chase a new high score.</p></article><article class="info-card"><span class="info-icon">✧</span><h2>How to Play</h2><ol><li>Use arrow keys or swipe to move the tiles.</li><li>Matching tiles merge when they collide.</li><li>Every valid move creates a new tile.</li><li>Keep merging tiles to reach 2048.</li><li>Plan ahead and avoid filling the board.</li></ol></article></section>
   </main>
-
-  <footer class="site-footer">
-    <div class="footer-meta">
-      <p>© 2026 <b>2048 Master</b>. All rights reserved.</p>
-      <p>Designed &amp; Developed by <a class="developer-link" href="https://bidhan.pro.bd/p/bidhan-kumar-pk.html" target="_blank" rel="noopener noreferrer">Bidhan Kumar PK</a></p>
-    </div>
-
-    <nav class="footer-links" aria-label="Contact and social links">
-      <a class="footer-icon" href="mailto:bidhanpk17@gmail.com" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M4 7l8 6 8-6"></path></svg></a>
-      <a class="footer-icon" href="https://www.bidhan.site" target="_blank" rel="noopener noreferrer" aria-label="Website" title="Website"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path></svg></a>
-      <a class="footer-icon" href="https://www.facebook.com/truly.BiDHAN" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-3 0-5 2-5 5v3H6v4h3v5h4v-5h3l1-4h-4V9c0-.6.4-1 1-1z"></path></svg></a>
-      <a class="footer-icon" href="https://www.instagram.com/truly_bidhan" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1"></circle></svg></a>
-      <a class="footer-icon" href="https://www.linkedin.com/in/bidhanpk" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 8.5A1.56 1.56 0 1 1 6.93 5.4a1.56 1.56 0 0 1 .01 3.1zM5.5 9.8h2.9V19H5.5zM10.3 9.8h2.8v1.3h.04c.39-.75 1.35-1.54 2.77-1.54 2.96 0 3.51 1.94 3.51 4.46V19h-2.9v-17.3h2.9v1.42c.47-.93 1.65-1.9 3.42-1.9 3.65 0 4.32 2.4 4.32 5.53V19h-2.9v-17.3h2.9v1.42c.47-.93 1.65-1.9 3.42-1.9"></path></svg></a>
-    </nav>
-  </footer>
-
-  <div class="modal-backdrop" id="modal" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button class="modal-close" type="button" aria-label="Close modal">×</button>
-      <div class="modal-icon" id="modal-icon">✦</div>
-      <h2 id="modal-title">You reached 2048!</h2>
-      <p id="modal-message">Congratulations! You've mastered the board.</p>
-      <p id="modal-score" class="modal-score">Score: 0</p>
-      <div class="modal-actions">
-        <button class="primary-button modal-retry" type="button">Try Again</button>
-      </div>
-    </div>
-  </div>
+  <footer class="site-footer"><div class="footer-meta"><p>© 2026 <b>2048 Master</b>. All rights reserved.</p><p>Designed &amp; Developed by <a class="developer-link" href="https://bidhan.pro.bd/p/bidhan-kumar-pk.html" target="_blank" rel="noopener noreferrer">Bidhan Kumar PK</a></p></div><nav class="footer-links" aria-label="Contact and social links"><a class="footer-icon" href="mailto:bidhanpk17@gmail.com" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M4 7l8 6 8-6"></path></svg></a><a class="footer-icon" href="https://www.bidhan.site" target="_blank" rel="noopener noreferrer" aria-label="Website" title="Website"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path></svg></a><a class="footer-icon" href="https://www.facebook.com/truly.BiDHAN" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-3 0-5 2-5 5v3H6v4h3v5h4v-5h3l1-4h-4V9c0-.6.4-1 1-1z" fill="currentColor" stroke="none"></path></svg></a><a class="footer-icon" href="https://www.instagram.com/truly_bidhan" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg></a><a class="footer-icon linkedin-mark" href="https://www.linkedin.com/in/bidhanpk" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"></a></nav></footer>
+  <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="modal-close" type="button" aria-label="Close modal">×</button><div class="modal-icon" id="modal-icon">✦</div><h2 id="modal-title">You reached 2048!</h2><p id="modal-message">Congratulations! You've mastered the board.</p><p id="modal-score" class="modal-score">Score: 0</p><div class="modal-actions"><button class="primary-button modal-retry" type="button">Try Again</button></div></div></div>
 </body>
 </html>
