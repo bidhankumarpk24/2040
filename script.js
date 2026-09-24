@@ -2,24 +2,56 @@
   'use strict';
   const SIZE = 4, WIN = 2048;
   const storage = {
-    get(k, fallback) {
-      try {
-        const v = localStorage.getItem(k);
-        return v === null ? fallback : v;
-      } catch (_) {
-        return fallback;
-      }
-    },
-    set(k, v) {
-      try {
-        localStorage.setItem(k, String(v));
-      } catch (_) {}
-    }
+    get(k, fallback) { try { const v = localStorage.getItem(k); return v === null ? fallback : v; } catch (_) { return fallback; } },
+    set(k, v) { try { localStorage.setItem(k, String(v)); } catch (_) {} }
   };
 
   let board = [], score = 0, best = Number(storage.get('2048-best', 0)) || 0, previous = null, won = false, ended = false, sound = storage.get('2048-sound', 'on') !== 'off';
   const $ = id => document.getElementById(id), boardEl = $('board'), scoreEl = $('score'), bestEl = $('best'), statusEl = $('status-line'), modal = $('modal');
   const randomTile = () => Math.random() < .9 ? 2 : 4;
+
+  function setupModal() {
+    // Keep the modal hidden on initial page load. The stylesheet's backdrop rule
+    // can otherwise override the browser's default [hidden] behavior.
+    modal.hidden = true;
+    modal.style.display = 'none';
+
+    const dialog = modal.querySelector('.modal');
+    if (!dialog) return;
+    dialog.setAttribute('aria-describedby', 'modal-message');
+
+    let close = dialog.querySelector('.modal-close');
+    if (!close) {
+      close = document.createElement('button');
+      close.className = 'modal-close';
+      close.type = 'button';
+      close.setAttribute('aria-label', 'Close');
+      close.innerHTML = '&times;';
+      dialog.appendChild(close);
+    }
+    close.onclick = closeModal;
+
+    let actions = dialog.querySelector('.modal-actions');
+    if (!actions) {
+      actions = document.createElement('div');
+      actions.className = 'modal-actions';
+      dialog.appendChild(actions);
+    }
+
+    let retry = actions.querySelector('.modal-retry');
+    if (!retry) {
+      retry = document.createElement('button');
+      retry.className = 'primary-button modal-retry';
+      retry.type = 'button';
+      retry.textContent = 'Try Again';
+      actions.appendChild(retry);
+    }
+    retry.onclick = newGame;
+
+    modal.onclick = event => {
+      if (event.target === modal) closeModal();
+    };
+  }
 
   function emptyCells() {
     const cells = [];
@@ -64,9 +96,7 @@
         result.push(value);
         gain += value;
         i++;
-      } else {
-        result.push(values[i]);
-      }
+      } else result.push(values[i]);
     }
     while (result.length < SIZE) result.push(0);
     score += gain;
@@ -75,10 +105,8 @@
 
   function move(direction) {
     if (ended) return false;
-    const before = board.map(row => row.slice());
-    const scoreBefore = score;
+    const before = board.map(row => row.slice()), scoreBefore = score;
     let changed = false, merged = false;
-
     if (direction === 'left' || direction === 'right') {
       for (let r = 0; r < SIZE; r++) {
         const original = board[r].slice();
@@ -102,44 +130,28 @@
         for (let r = 0; r < SIZE; r++) board[r][c] = out.result[r];
       }
     }
-
-    if (!changed) {
-      score = scoreBefore;
-      return false;
-    }
-
+    if (!changed) { score = scoreBefore; return false; }
     previous = { board: before, score: scoreBefore, won };
     addTile();
-    if (score > best) {
-      best = score;
-      storage.set('2048-best', best);
-    }
+    if (score > best) { best = score; storage.set('2048-best', best); }
     render(merged);
     updateScore();
-
-    if (!won && board.some(row => row.includes(WIN))) {
-      won = true;
-      showWin();
-    } else if (!canMove()) {
-      ended = true;
-      showGameOver();
-    }
+    if (!won && board.some(row => row.includes(WIN))) { won = true; showWin(); }
+    else if (!canMove()) { ended = true; showGameOver(); }
     return true;
   }
 
   function canMove() {
     if (emptyCells().length) return true;
-    for (let r = 0; r < SIZE; r++) {
-      for (let c = 0; c < SIZE; c++) {
-        if ((r < 3 && board[r][c] === board[r + 1][c]) || (c < 3 && board[r][c] === board[r][c + 1])) return true;
-      }
+    for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) {
+      if ((r < 3 && board[r][c] === board[r + 1][c]) || (c < 3 && board[r][c] === board[r][c + 1])) return true;
     }
     return false;
   }
 
   function render(merged = false) {
     boardEl.innerHTML = '';
-    board.forEach((row, r) => row.forEach((value, c) => {
+    board.forEach(row => row.forEach(value => {
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.setAttribute('role', 'gridcell');
@@ -151,16 +163,8 @@
     }));
   }
 
-  function updateScore() {
-    scoreEl.textContent = score;
-    bestEl.textContent = best;
-  }
-
-  function update() {
-    updateScore();
-    $('undo').disabled = !previous;
-    render();
-  }
+  function updateScore() { scoreEl.textContent = score; bestEl.textContent = best; }
+  function update() { updateScore(); $('undo').disabled = !previous; render(); }
 
   function showWin() {
     $('modal-icon').textContent = '✦';
@@ -168,6 +172,7 @@
     $('modal-message').textContent = "Congratulations! You've mastered the board.";
     $('modal-score').textContent = `Score: ${score}`;
     modal.hidden = false;
+    modal.style.display = 'grid';
   }
 
   function showGameOver() {
@@ -176,24 +181,17 @@
     $('modal-message').textContent = 'No more moves. Try again!';
     $('modal-score').textContent = `Final score: ${score}`;
     modal.hidden = false;
+    modal.style.display = 'grid';
   }
 
-  function closeModal() { modal.hidden = true; }
-
+  function closeModal() { modal.hidden = true; modal.style.display = 'none'; }
   function beep(freq = 440) {
     if (!sound) return;
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator(), gain = ctx.createGain();
-      osc.frequency.value = freq;
-      gain.gain.value = 0.02;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.06);
+      const ctx = new (window.AudioContext || window.webkitAudioContext)(), osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.frequency.value = freq; gain.gain.value = .02; osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + .06);
     } catch (_) {}
   }
-
   function share() {
     const text = `I scored ${score} points in 2048 Master! Can you beat my score?`;
     if (navigator.share) navigator.share({ title: '2048 Master', text }).catch(() => {});
@@ -201,19 +199,14 @@
   }
 
   document.addEventListener('keydown', e => {
-    const keys = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', a: 'left', s: 'down', d: 'right' };
+    const keys = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right', Escape:'close' };
+    if (e.key === 'Escape') { closeModal(); return; }
     const dir = keys[e.key];
-    if (dir) {
-      e.preventDefault();
-      if (move(dir)) beep();
-    }
+    if (dir) { e.preventDefault(); if (move(dir)) beep(); }
   });
 
   let touchStart = null;
-  boardEl.addEventListener('touchstart', e => {
-    const t = e.changedTouches[0];
-    touchStart = { x: t.clientX, y: t.clientY };
-  }, { passive: true });
+  boardEl.addEventListener('touchstart', e => { const t = e.changedTouches[0]; touchStart = { x:t.clientX, y:t.clientY }; }, { passive:true });
   boardEl.addEventListener('touchend', e => {
     if (!touchStart) return;
     const t = e.changedTouches[0], dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
@@ -233,16 +226,12 @@
     storage.set('2048-theme', light ? 'light' : 'dark');
     $('theme-toggle').textContent = light ? '☾' : '☼';
   };
-
   const savedTheme = storage.get('2048-theme', 'dark');
   document.documentElement.dataset.theme = savedTheme;
   $('theme-toggle').textContent = savedTheme === 'light' ? '☾' : '☼';
-  $('sound-toggle').onclick = () => {
-    sound = !sound;
-    storage.set('2048-sound', sound ? 'on' : 'off');
-    $('sound-toggle').textContent = sound ? '🔊' : '🔇';
-  };
+  $('sound-toggle').onclick = () => { sound = !sound; storage.set('2048-sound', sound ? 'on' : 'off'); $('sound-toggle').textContent = sound ? '🔊' : '🔇'; };
   $('sound-toggle').textContent = sound ? '🔊' : '🔇';
 
+  setupModal();
   newGame();
 })();
