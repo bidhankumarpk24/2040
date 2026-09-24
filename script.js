@@ -46,10 +46,6 @@
     update();
   }
 
-  function cloneState() {
-    return { board: board.map(row => row.slice()), score, won };
-  }
-
   function restore(state) {
     board = state.board.map(row => row.slice());
     score = state.score;
@@ -60,10 +56,8 @@
   }
 
   function slide(line) {
-    const values = line.filter(Boolean);
-    const result = [];
+    const values = line.filter(Boolean), result = [];
     let gain = 0;
-
     for (let i = 0; i < values.length; i++) {
       if (values[i] === values[i + 1]) {
         const value = values[i] * 2;
@@ -74,7 +68,6 @@
         result.push(values[i]);
       }
     }
-
     while (result.length < SIZE) result.push(0);
     score += gain;
     return { result, gain };
@@ -82,44 +75,47 @@
 
   function move(direction) {
     if (ended) return false;
-
     const before = board.map(row => row.slice());
-    let changed = false;
-    let merged = false;
+    const scoreBefore = score;
+    let changed = false, merged = false;
 
     if (direction === 'left' || direction === 'right') {
       for (let r = 0; r < SIZE; r++) {
-        let line = board[r].slice();
+        const original = board[r].slice();
+        let line = original.slice();
         if (direction === 'right') line.reverse();
         const out = slide(line);
         if (direction === 'right') out.result.reverse();
-        if (JSON.stringify(line) !== JSON.stringify(out.result)) changed = true;
+        if (JSON.stringify(original) !== JSON.stringify(out.result)) changed = true;
         if (out.gain) merged = true;
         board[r] = out.result;
       }
     } else {
       for (let c = 0; c < SIZE; c++) {
-        let line = board.map(row => row[c]);
+        const original = board.map(row => row[c]);
+        let line = original.slice();
         if (direction === 'down') line.reverse();
         const out = slide(line);
         if (direction === 'down') out.result.reverse();
-        if (JSON.stringify(line) !== JSON.stringify(out.result)) changed = true;
+        if (JSON.stringify(original) !== JSON.stringify(out.result)) changed = true;
         if (out.gain) merged = true;
         for (let r = 0; r < SIZE; r++) board[r][c] = out.result[r];
       }
     }
 
-    if (!changed) return false;
+    if (!changed) {
+      score = scoreBefore;
+      return false;
+    }
 
-    previous = { board: before, score: score - (merged ? calculateMoveGain(before, board) : 0), won };
+    previous = { board: before, score: scoreBefore, won };
     addTile();
-
     if (score > best) {
       best = score;
       storage.set('2048-best', best);
     }
-
-    update();
+    render(merged);
+    updateScore();
 
     if (!won && board.some(row => row.includes(WIN))) {
       won = true;
@@ -128,26 +124,7 @@
       ended = true;
       showGameOver();
     }
-
     return true;
-  }
-
-  function calculateMoveGain(before, after) {
-    const a = before.flat();
-    const b = after.flat();
-    let gain = 0;
-    const beforeCounts = {};
-    const afterCounts = {};
-
-    a.forEach(v => { if (v) beforeCounts[v] = (beforeCounts[v] || 0) + 1; });
-    b.forEach(v => { if (v) afterCounts[v] = (afterCounts[v] || 0) + 1; });
-
-    for (const value in afterCounts) {
-      const diff = afterCounts[value] - (beforeCounts[value] || 0);
-      if (diff > 0) gain += Number(value) * diff;
-    }
-
-    return gain;
   }
 
   function canMove() {
@@ -168,22 +145,19 @@
       cell.setAttribute('role', 'gridcell');
       cell.setAttribute('aria-label', value ? `Tile ${value}` : 'Empty cell');
       cell.textContent = value || '';
-
-      if (value) {
-        cell.classList.add(`tile-${value}`);
-      }
-
-      if (merged && value) {
-        cell.classList.add('merged');
-      }
-
+      if (value) cell.classList.add(`tile-${value}`);
+      if (merged && value) cell.classList.add('merged');
       boardEl.appendChild(cell);
     }));
   }
 
-  function update() {
+  function updateScore() {
     scoreEl.textContent = score;
     bestEl.textContent = best;
+  }
+
+  function update() {
+    updateScore();
     $('undo').disabled = !previous;
     render();
   }
@@ -204,16 +178,13 @@
     modal.hidden = false;
   }
 
-  function closeModal() {
-    modal.hidden = true;
-  }
+  function closeModal() { modal.hidden = true; }
 
   function beep(freq = 440) {
     if (!sound) return;
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.frequency.value = freq;
       gain.gain.value = 0.02;
       osc.connect(gain);
@@ -225,11 +196,8 @@
 
   function share() {
     const text = `I scored ${score} points in 2048 Master! Can you beat my score?`;
-    if (navigator.share) {
-      navigator.share({ title: '2048 Master', text }).catch(() => {});
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).catch(() => {});
-    }
+    if (navigator.share) navigator.share({ title: '2048 Master', text }).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
   }
 
   document.addEventListener('keydown', e => {
@@ -237,34 +205,22 @@
     const dir = keys[e.key];
     if (dir) {
       e.preventDefault();
-      move(dir);
-      beep();
+      if (move(dir)) beep();
     }
   });
 
   let touchStart = null;
-
   boardEl.addEventListener('touchstart', e => {
     const t = e.changedTouches[0];
     touchStart = { x: t.clientX, y: t.clientY };
   }, { passive: true });
-
   boardEl.addEventListener('touchend', e => {
     if (!touchStart) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStart.x;
-    const dy = t.clientY - touchStart.y;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-
-    if (Math.max(absX, absY) < 30) return;
-
-    if (absX > absY) {
-      move(dx > 0 ? 'right' : 'left');
-    } else {
-      move(dy > 0 ? 'down' : 'up');
+    const t = e.changedTouches[0], dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) >= 30) {
+      const direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+      if (move(direction)) beep();
     }
-
     touchStart = null;
   });
 
@@ -281,7 +237,6 @@
   const savedTheme = storage.get('2048-theme', 'dark');
   document.documentElement.dataset.theme = savedTheme;
   $('theme-toggle').textContent = savedTheme === 'light' ? '☾' : '☼';
-
   $('sound-toggle').onclick = () => {
     sound = !sound;
     storage.set('2048-sound', sound ? 'on' : 'off');
