@@ -1,12 +1,13 @@
 (() => {
   'use strict';
   const SIZE = 4, WIN = 2048;
+  const SHARE_URL = 'https://bidhanpk1.github.io/2048/';
   const storage = { get(k, fallback) { try { const v = localStorage.getItem(k); return v === null ? fallback : v; } catch (_) { return fallback; } }, set(k, v) { try { localStorage.setItem(k, String(v)); } catch (_) {} } };
   let board = [], score = 0, best = Number(storage.get('2048-best', 0)) || 0, previous = null, won = false, ended = false, sound = storage.get('2048-sound', 'on') !== 'off';
   const $ = id => document.getElementById(id), boardEl = $('board'), scoreEl = $('score'), bestEl = $('best'), modal = $('modal'), undoEl = $('undo');
   const randomTile = () => Math.random() < .9 ? 2 : 4;
   function closeModal() { modal.hidden = true; modal.style.display = 'none'; }
-  function setupModal() { closeModal(); const dialog = modal.querySelector('.modal'); if (!dialog) return; const close = dialog.querySelector('.modal-close'), retry = dialog.querySelector('.modal-retry'); if (close) close.onclick = closeModal; if (retry) retry.onclick = newGame; modal.onclick = e => { if (e.target === modal) closeModal(); }; }
+  function setupModal() { closeModal(); const dialog = modal.querySelector('.modal'); if (!dialog) return; const close = dialog.querySelector('.modal-close'), retry = dialog.querySelector('.modal-retry'), modalShare = dialog.querySelector('.modal-share'); if (close) close.onclick = closeModal; if (retry) retry.onclick = newGame; if (modalShare) modalShare.onclick = share; modal.onclick = e => { if (e.target === modal) closeModal(); }; }
   function emptyCells() { const cells = []; board.forEach((row, r) => row.forEach((v, c) => { if (!v) cells.push([r, c]); })); return cells; }
   function addTile() { const cells = emptyCells(); if (!cells.length) return; const [r, c] = cells[Math.floor(Math.random() * cells.length)]; board[r][c] = randomTile(); }
   function snapshot() { return { board: board.map(row => row.slice()), score, won }; }
@@ -14,22 +15,10 @@
   function restore(state) { board = state.board.map(row => row.slice()); score = state.score; won = state.won; ended = false; previous = null; closeModal(); update(); }
   function undoMove() { if (!previous) return; const state = previous; previous = null; restore(state); }
   function slide(line) { const values = line.filter(Boolean), result = []; let gain = 0; for (let i = 0; i < values.length; i++) { if (values[i] === values[i + 1]) { const value = values[i] * 2; result.push(value); gain += value; i++; } else result.push(values[i]); } while (result.length < SIZE) result.push(0); score += gain; return { result, gain }; }
-  function move(direction) {
-    if (ended) return false;
-    const before = snapshot(), scoreBefore = score;
-    let changed = false, merged = false;
-    if (direction === 'left' || direction === 'right') {
-      for (let r = 0; r < SIZE; r++) { const original = board[r].slice(); let line = original.slice(); if (direction === 'right') line.reverse(); const out = slide(line); if (direction === 'right') out.result.reverse(); if (JSON.stringify(original) !== JSON.stringify(out.result)) changed = true; if (out.gain) merged = true; board[r] = out.result; }
-    } else {
-      for (let c = 0; c < SIZE; c++) { const original = board.map(row => row[c]); let line = original.slice(); if (direction === 'down') line.reverse(); const out = slide(line); if (direction === 'down') out.result.reverse(); if (JSON.stringify(original) !== JSON.stringify(out.result)) changed = true; if (out.gain) merged = true; for (let r = 0; r < SIZE; r++) board[r][c] = out.result[r]; }
-    }
-    if (!changed) { score = scoreBefore; return false; }
-    previous = before;
-    addTile();
-    if (score > best) { best = score; storage.set('2048-best', best); }
-    render(merged); updateScore();
-    if (!won && board.some(row => row.includes(WIN))) { won = true; showWin(); } else if (!canMove()) { ended = true; showGameOver(); }
-    return true;
+  function move(direction) { if (ended) return false; const before = snapshot(), scoreBefore = score; let changed = false, merged = false;
+    if (direction === 'left' || direction === 'right') for (let r = 0; r < SIZE; r++) { const original = board[r].slice(); let line = original.slice(); if (direction === 'right') line.reverse(); const out = slide(line); if (direction === 'right') out.result.reverse(); if (JSON.stringify(original) !== JSON.stringify(out.result)) changed = true; if (out.gain) merged = true; board[r] = out.result; }
+    else for (let c = 0; c < SIZE; c++) { const original = board.map(row => row[c]); let line = original.slice(); if (direction === 'down') line.reverse(); const out = slide(line); if (direction === 'down') out.result.reverse(); if (JSON.stringify(original) !== JSON.stringify(out.result)) changed = true; if (out.gain) merged = true; for (let r = 0; r < SIZE; r++) board[r][c] = out.result[r]; }
+    if (!changed) { score = scoreBefore; return false; } previous = before; addTile(); if (score > best) { best = score; storage.set('2048-best', best); } render(merged); updateScore(); if (!won && board.some(row => row.includes(WIN))) { won = true; showWin(); } else if (!canMove()) { ended = true; showGameOver(); } return true;
   }
   function canMove() { if (emptyCells().length) return true; for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if ((r < 3 && board[r][c] === board[r + 1][c]) || (c < 3 && board[r][c] === board[r][c + 1])) return true; return false; }
   function render(merged = false) { boardEl.innerHTML = ''; board.forEach(row => row.forEach(value => { const cell = document.createElement('div'); cell.className = 'cell'; cell.setAttribute('role', 'gridcell'); cell.setAttribute('aria-label', value ? `Tile ${value}` : 'Empty cell'); cell.textContent = value || ''; if (value) cell.classList.add(`tile-${value}`); if (merged && value) cell.classList.add('merged'); boardEl.appendChild(cell); })); }
@@ -37,12 +26,9 @@
   function update() { updateScore(); undoEl.disabled = !previous; undoEl.setAttribute('aria-label', previous ? 'Undo last move' : 'Undo unavailable'); render(); }
   function showWin() { $('modal-icon').textContent = '✦'; $('modal-title').textContent = 'You reached 2048!'; $('modal-message').textContent = "Congratulations! You've mastered the board."; $('modal-score').textContent = `Score: ${score}`; modal.hidden = false; modal.style.display = 'grid'; }
   function showGameOver() { $('modal-icon').textContent = '◇'; $('modal-title').textContent = 'Game Over'; $('modal-message').textContent = 'No more moves. Try again!'; $('modal-score').textContent = `Final score: ${score}`; modal.hidden = false; modal.style.display = 'grid'; }
+  function share() { const text = `I scored ${score} points in 2048 Master! Can you beat my score?\nVisit the link below to play and try to beat me!\n${SHARE_URL}`; const data = { title: '2048 Master score', text, url: SHARE_URL }; if (navigator.share) navigator.share(data).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {}); }
   function beep(freq = 440) { if (!sound) return; try { const ctx = new (window.AudioContext || window.webkitAudioContext)(), osc = ctx.createOscillator(), gain = ctx.createGain(); osc.frequency.value = freq; gain.gain.value = .02; osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + .06); } catch (_) {} }
-  function share() { const text = `I scored ${score} points in 2048 Master! Visit https://bidhanpk1.github.io/2048/ to play!`; const data = { title: '2048 Master score', text, url: 'https://bidhanpk1.github.io/2048/' }; if (navigator.share) navigator.share(data).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(`${text}\n${data.url}`).catch(() => {}); }
   document.addEventListener('keydown', e => { const keys = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', a:'left', s:'down', d:'right' }; if (e.key === 'Escape') { closeModal(); return; } const dir = keys[e.key]; if (dir) { e.preventDefault(); if (move(dir)) beep(); } });
   let touchStart = null; boardEl.addEventListener('touchstart', e => { e.preventDefault(); const t = e.changedTouches[0]; touchStart = { x:t.clientX, y:t.clientY }; }, { passive:false }); boardEl.addEventListener('touchmove', e => e.preventDefault(), { passive:false }); boardEl.addEventListener('touchend', e => { e.preventDefault(); if (!touchStart) return; const t = e.changedTouches[0], dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y; if (Math.max(Math.abs(dx), Math.abs(dy)) >= 30) { const direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'); if (move(direction)) beep(); } touchStart = null; }, { passive:false }); boardEl.addEventListener('touchcancel', () => { touchStart = null; }, { passive:true });
-  $('new-game').onclick = newGame; undoEl.onclick = undoMove; $('share').onclick = share;
-  $('theme-toggle').onclick = () => { const light = document.documentElement.dataset.theme !== 'light'; document.documentElement.dataset.theme = light ? 'light' : 'dark'; storage.set('2048-theme', light ? 'light' : 'dark'); $('theme-toggle').setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme'); };
-  const savedTheme = storage.get('2048-theme', 'dark'); document.documentElement.dataset.theme = savedTheme; $('theme-toggle').setAttribute('aria-label', savedTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'); $('sound-toggle').onclick = () => { sound = !sound; storage.set('2048-sound', sound ? 'on' : 'off'); $('sound-toggle').setAttribute('aria-label', sound ? 'Mute sound' : 'Enable sound'); }; $('sound-toggle').setAttribute('aria-label', sound ? 'Mute sound' : 'Enable sound');
-  setupModal(); newGame();
+  $('new-game').onclick = newGame; undoEl.onclick = undoMove; $('share').onclick = share; $('theme-toggle').onclick = () => { const light = document.documentElement.dataset.theme !== 'light'; document.documentElement.dataset.theme = light ? 'light' : 'dark'; storage.set('2048-theme', light ? 'light' : 'dark'); $('theme-toggle').setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme'); }; const savedTheme = storage.get('2048-theme', 'dark'); document.documentElement.dataset.theme = savedTheme; $('theme-toggle').setAttribute('aria-label', savedTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'); $('sound-toggle').onclick = () => { sound = !sound; storage.set('2048-sound', sound ? 'on' : 'off'); $('sound-toggle').setAttribute('aria-label', sound ? 'Mute sound' : 'Enable sound'); }; $('sound-toggle').setAttribute('aria-label', sound ? 'Mute sound' : 'Enable sound'); setupModal(); newGame();
 })();
