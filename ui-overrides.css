@@ -1,0 +1,20 @@
+/* Final visual and interaction overrides */
+[data-theme="light"] .score-panel{background:linear-gradient(145deg,#ffffff,#e7ecfb);border-color:rgba(83,97,125,.22);box-shadow:0 18px 34px rgba(56,72,115,.18)}
+[data-theme="light"] .score-box{background:rgba(83,97,125,.08);border-color:rgba(83,97,125,.18)}
+[data-theme="light"] .score-box .label{color:#6551c9}
+[data-theme="light"] .score-box .value{color:#1b2340;text-shadow:0 4px 12px rgba(83,97,125,.18)}
+[data-theme="light"] .game-card{background:rgba(255,255,255,.88);border-color:rgba(83,97,125,.2)}
+[data-theme="light"] .board-wrap{background:#d8e0f0}
+[data-theme="light"] .status{color:#53617d}
+[data-theme="light"] .secondary-button{background:#fff;color:#1b2340;border-color:rgba(83,97,125,.22)}
+[data-theme="light"] .secondary-button:disabled{color:#8792aa;background:#edf1f8;opacity:.75}
+.toggle{display:grid;place-items:center;border:1px solid var(--line);background:linear-gradient(145deg,var(--surface-2),var(--surface));box-shadow:0 5px 12px rgba(0,0,0,.12);transition:transform .2s ease,box-shadow .2s ease}
+.toggle::before{font-size:1.1rem!important}
+.toggle:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(128,103,255,.24)}
+#theme-toggle[aria-label="Switch to dark theme"]::before{content:'☀';color:#f6c85f}
+#theme-toggle[aria-label="Switch to light theme"]::before{content:'☾';color:#cfc7ff}
+#sound-toggle[aria-label="Mute sound"]::before{content:'🔊'}
+#sound-toggle[aria-label="Enable sound"]::before{content:'🔇'}
+#undo:not(:disabled){border-color:rgba(128,103,255,.45);color:var(--text);box-shadow:0 5px 14px rgba(128,103,255,.12)}
+#undo:disabled{cursor:not-allowed;opacity:.55}
+@media(max-width:760px){.score-panel{width:100%;max-width:340px}}
